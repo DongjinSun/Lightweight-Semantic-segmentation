@@ -1,0 +1,1 @@
+models/bisenetv2-tensorflow-master/data/icg_drone/
