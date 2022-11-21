@@ -10,7 +10,7 @@ SOURCE_LABEL_DIR = './data/icg_drone/dataset/label'
 
 DST_IMAGE_INDEX_FILE_OUTPUT_DIR = './data/example_dataset/cityscapes/image_file_index'
 image_file_index = []
-
+source_image_paths = os.listdir(SOURCE_IMAGE_DIR)
 for source_image in tqdm.tqdm(source_image_paths[:240]):
     image_name = ops.split(source_image)[1]
     image_id = image_name.split('.')[0]
