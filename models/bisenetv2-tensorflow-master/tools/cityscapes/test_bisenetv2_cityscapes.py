@@ -14,7 +14,7 @@ import cv2
 import time
 import numpy as np
 import matplotlib.pyplot as plt
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from sklearn.metrics import confusion_matrix
 
 from bisenet_model import bisenet_v2
@@ -115,6 +115,7 @@ def test_bisenet_cityspaces(image_path, weights_path):
     :return:
     """
     # define bisenet
+    tf.disable_eager_execution()
     input_tensor_size = CFG.AUG.EVAL_CROP_SIZE
     input_tensor_size = [int(tmp / 2) for tmp in input_tensor_size]
     input_tensor = tf.placeholder(
@@ -187,7 +188,6 @@ if __name__ == '__main__':
     test code
     """
     args = init_args()
-
     test_bisenet_cityspaces(
         image_path=args.src_image_path,
         weights_path=args.weights_path

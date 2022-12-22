@@ -1,1 +1,5 @@
-models/bisenetv2-tensorflow-master/data/icg_drone/
+models/bisenetv2-tensorflow-master/data/
+models/bisenetv2-tensorflow-master/log/
+*.ipynb
+.ipynb_checkpoints
+

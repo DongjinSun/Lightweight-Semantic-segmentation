@@ -8,7 +8,7 @@
 """
 The base convolution neural networks mainly implement some useful cnn functions
 """
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
 
 
@@ -51,9 +51,9 @@ class CNNBaseModel(object):
             padding = padding.upper()
 
             if isinstance(kernel_size, list):
-                filter_shape = [kernel_size[0], kernel_size[1]] + [in_channel / split, out_channel]
+                filter_shape = [kernel_size[0], kernel_size[1]] + [in_channel // split, out_channel]
             else:
-                filter_shape = [kernel_size, kernel_size] + [in_channel / split, out_channel]
+                filter_shape = [kernel_size, kernel_size] + [in_channel // split, out_channel]
 
             if isinstance(stride, list):
                 strides = [1, stride[0], stride[1], 1] if data_format == 'NHWC' \

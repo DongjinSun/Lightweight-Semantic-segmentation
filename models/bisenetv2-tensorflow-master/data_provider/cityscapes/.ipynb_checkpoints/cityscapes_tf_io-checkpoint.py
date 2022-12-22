@@ -13,7 +13,7 @@ import os.path as ops
 import collections
 import six
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
 import loguru
 
@@ -129,16 +129,16 @@ class _CityScapesTfWriter(object):
 
         LOG.info('Writing {:s}....'.format(tfrecords_path))
 
-        with tf.python_io.TFRecordWriter(tfrecords_path) as writer:
+        with tf.compat.v1.python_io.TFRecordWriter(tfrecords_path) as writer:
             for sample_path in sample_image_paths:
                 gt_src_image_path = sample_path[0]
                 gt_label_image_path = sample_path[1]
 
                 # prepare gt image
-                gt_image_raw = tf.gfile.FastGFile(gt_src_image_path, 'rb').read()
+                gt_image_raw = tf.compat.v1.gfile.FastGFile(gt_src_image_path, 'rb').read()
 
                 # prepare gt binary image
-                gt_binary_image_raw = tf.gfile.FastGFile(gt_label_image_path, 'rb').read()
+                gt_binary_image_raw = tf.compat.v1.gfile.FastGFile(gt_label_image_path, 'rb').read()
 
                 example = tf.train.Example(
                     features=tf.train.Features(
@@ -207,7 +207,7 @@ class _CityScapesTfReader(object):
         assert ops.exists(tfrecords_file_paths), '{:s} not exist'.format(tfrecords_file_paths)
 
         sample_counts = 0
-        sample_counts += sum(1 for _ in tf.python_io.tf_record_iterator(tfrecords_file_paths))
+        sample_counts += sum(1 for _ in tf.compat.v1.python_io.tf_record_iterator(tfrecords_file_paths))
         if self._dataset_flags == 'train':
             num_batchs = int(np.ceil(sample_counts / self._train_batch_size))
         elif self._dataset_flags == 'val':
@@ -262,11 +262,10 @@ class _CityScapesTfReader(object):
 
                 dataset = dataset.batch(batch_size=batch_size, drop_remainder=True)
                 dataset = dataset.prefetch(buffer_size=batch_size * 16)
+                iterator = tf.data.make_one_shot_iterator(dataset)
+                
 
-                iterator = dataset.make_one_shot_iterator()
-
-        return iterator.get_next(name='{:s}_IteratorGetNext'.format(self._dataset_flags))
-
+        return iterator.get_next()
 
 class CityScapesTfIO(object):
     """

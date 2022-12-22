@@ -11,7 +11,7 @@ BiseNet V2 Model
 import collections
 import time
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 from bisenet_model import cnn_basenet
 from local_utils.config_utils import parse_config_utils
@@ -773,16 +773,19 @@ class BiseNetV2(cnn_basenet.CNNBaseModel):
             phase = tf.constant(self._phase, dtype=tf.string)
         return tf.equal(phase, tf.constant('train', dtype=tf.string))
 
-    @classmethod
+    
     def _build_detail_branch_hyper_params(cls):
         """
 
         :return:
         """
+    # def _MB_block(self, input_tensor, k_size, output_channels, stride, f,
+    #                 name, padding='SAME', use_bias=False, need_activate=False):
+    #     """
         params = [
-            ('stage_1', [('conv_block', 3, 64, 2, 1), ('conv_block', 3, 64, 1, 1)]),
-            ('stage_2', [('conv_block', 3, 64, 2, 1), ('conv_block', 3, 64, 1, 2)]),
-            ('stage_3', [('conv_block', 3, 128, 2, 1), ('conv_block', 3, 128, 1, 2)]),
+            ('stage_1', [('ge', 3, 64, 6,2 ,1)]),
+            ('stage_2', [('ge', 3, 64, 6,2, 1), ('ge', 3, 64, 6,1, 2)]),
+            ('stage_3', [('ge', 3, 128, 6, 2, 1), ('ge', 3, 128, 6, 1, 2)])
         ]
         return collections.OrderedDict(params)
 
@@ -834,7 +837,7 @@ class BiseNetV2(cnn_basenet.CNNBaseModel):
             else:
                 result = self.layerbn(inputdata=result, is_training=self._is_training, name='bn', scale=True)
         return result
-
+    
     @classmethod
     def _compute_cross_entropy_loss(cls, seg_logits, labels, class_nums, name):
         """
@@ -986,36 +989,25 @@ class BiseNetV2(cnn_basenet.CNNBaseModel):
             for stage_name, stage_params in self._detail_branch_channels.items():
                 with tf.variable_scope(stage_name):
                     for block_index, param in enumerate(stage_params):
-                        block_op = self._block_maps[param[0]]
-                        k_size = param[1]
+                        block_op_name = param[0]
+                        block_op = self._block_maps[block_op_name]
                         output_channels = param[2]
-                        stride = param[3]
-                        repeat_times = param[4]
+                        expand_ratio = param[3]
+                        stride = param[4]
+                        repeat_times = param[5]
                         for repeat_index in range(repeat_times):
-                            with tf.variable_scope(name_or_scope='conv_block_{:d}_repeat_{:d}'.format(
-                                    block_index + 1, repeat_index + 1)):
-                                if stage_name == 'stage_3' and block_index == 1 and repeat_index == 1:
+                            with tf.variable_scope(name_or_scope='{:s}_block_detail_{:d}_repeat_{:d}'.format(
+                                    block_op_name, block_index + 1, repeat_index + 1)):
+                                if block_op_name == 'ge':
                                     result = block_op(
                                         input_tensor=result,
-                                        k_size=k_size,
-                                        output_channels=output_channels,
+                                        name='gather_expansion_block',
                                         stride=stride,
-                                        name='3x3_conv',
-                                        padding='SAME',
-                                        use_bias=False,
-                                        need_activate=False
+                                        e=expand_ratio,
+                                        output_channels=output_channels
                                     )
                                 else:
-                                    result = block_op(
-                                        input_tensor=result,
-                                        k_size=k_size,
-                                        output_channels=output_channels,
-                                        stride=stride,
-                                        name='3x3_conv',
-                                        padding='SAME',
-                                        use_bias=False,
-                                        need_activate=True
-                                    )
+                                    raise NotImplementedError('Not support block type: {:s}'.format(block_op_name))
         return result
 
     def build_semantic_branch(self, input_tensor, name, prepare_data_for_booster=False):

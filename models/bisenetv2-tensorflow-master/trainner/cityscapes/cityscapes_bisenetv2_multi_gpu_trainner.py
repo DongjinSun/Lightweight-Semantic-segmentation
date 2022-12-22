@@ -15,7 +15,7 @@ import time
 import math
 
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import loguru
 import tqdm
 
@@ -25,7 +25,7 @@ from data_provider.cityscapes import cityscapes_tf_io
 
 LOG = loguru.logger
 CFG = parse_config_utils.cityscapes_cfg_v2
-
+tf.disable_v2_behavior()
 
 class BiseNetV2CityScapesMultiTrainer(object):
     """
@@ -58,7 +58,6 @@ class BiseNetV2CityScapesMultiTrainer(object):
         self._gpu_nums = len(self._gpu_devices)
         self._chief_gpu_index = CFG.TRAIN.MULTI_GPU.CHIEF_DEVICE_INDEX
         self._batch_size_per_gpu = int(self._batch_size / self._gpu_nums)
-
         self._init_learning_rate = CFG.SOLVER.LR
         self._moving_ave_decay = CFG.SOLVER.MOVING_AVE_DECAY
         self._momentum = CFG.SOLVER.MOMENTUM
