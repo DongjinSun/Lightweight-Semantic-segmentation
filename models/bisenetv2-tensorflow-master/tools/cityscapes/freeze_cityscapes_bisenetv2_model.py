@@ -10,7 +10,11 @@ Freeze bisenetv2 model
 """
 import argparse
 
-import tensorflow as tf
+import sys
+sys.path.insert(0,'/Lightweight-Semantic-segmentation/models/bisenetv2-tensorflow-master/')
+
+import tensorflow.compat.v1 as tf
+tf.compat.v1.disable_eager_execution()
 from tensorflow.python.framework import graph_util
 from tensorflow.python.tools import optimize_for_inference_lib
 

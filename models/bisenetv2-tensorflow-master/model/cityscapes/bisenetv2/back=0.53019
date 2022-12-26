@@ -1,6 +1,0 @@
-model_checkpoint_path: "cityscapes_train_miou=0.5302.ckpt-904"
-all_model_checkpoint_paths: "cityscapes_train_miou=0.5206.ckpt-872"
-all_model_checkpoint_paths: "cityscapes_train_miou=0.5229.ckpt-880"
-all_model_checkpoint_paths: "cityscapes_train_miou=0.5253.ckpt-888"
-all_model_checkpoint_paths: "cityscapes_train_miou=0.5279.ckpt-896"
-all_model_checkpoint_paths: "cityscapes_train_miou=0.5302.ckpt-904"
